@@ -21,7 +21,7 @@ const fetchTickets = async () => {
   const { data, error } = await supabase
     .from("tickets")
     .select("*, severidad(nombre, color)")
-    .eq("tecnico_id", usuario.id);
+    .or(`tecnico_id.is.null,tecnico_id.eq.${usuario.id}`);
 
   if (!error) tickets.value = data;
   else console.error("Error al obtener tickets:", error);
@@ -30,8 +30,12 @@ const fetchTickets = async () => {
 onMounted(fetchTickets);
 
 const ticketsFiltrados = computed(() => {
-  if (filtro.value === "Todos") return tickets.value;
-  return tickets.value.filter((ticket) => ticket.estado === filtro.value);
+  if (filtro.value === "Todos") {
+    return tickets.value.filter(ticket => ticket.tecnico_id === null);
+  }
+  return tickets.value.filter(
+    (ticket) => ticket.estado === filtro.value && ticket.tecnico_id === usuario.id
+  );
 });
 </script>
 

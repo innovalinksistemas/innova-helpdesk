@@ -13,13 +13,19 @@ const usuario = JSON.parse(localStorage.getItem("usuario"))
 const fetchTicket = async () => {
   const { data, error } = await supabase
     .from("tickets")
-    .select("*")
+    .select(`
+      *,
+      categorias_servicio(nombre),
+      subcategorias(nombre),
+      severidad(nombre, color)
+    `)
     .eq("id", ticketId)
     .single();
 
   if (!error) ticket.value = data;
   else console.error("Error al obtener el ticket:", error);
 };
+
 
 onMounted(fetchTicket);
 
@@ -57,16 +63,39 @@ const enviarRespuesta = async () => {
     </router-link>
     <h1 class="text-2xl font-bold">Ticket #{{ ticket.id }}</h1>
 
-    <div class="flex items-center space-x-2">
-      <span class="text-xl font-semibold">{{ ticket.titulo }}</span>
-      <span class="text-xs px-2 py-1 rounded bg-red-600">Crítico</span>
-      <span class="text-xs px-2 py-1 rounded bg-emerald-600">{{
-        ticket.categoria
-      }}</span>
-      <span class="text-xs px-2 py-1 rounded bg-black/40"
-        >Procesamiento de tarjetas</span
-      >
-    </div>
+    <div class="flex items-center flex-wrap gap-2">
+  <span class="text-xl font-semibold">{{ ticket.titulo }}</span>
+
+  <span
+    v-if="ticket.prioridad"
+    class="text-xs px-2 py-1 rounded bg-white text-black"
+  >
+   Prioridad: {{ ticket.prioridad }}
+  </span>
+
+  <span
+    v-if="ticket.severidad"
+    class="text-xs px-2 py-1 rounded"
+    :style="{ backgroundColor: ticket.severidad.color }"
+  >
+ Severidad: {{ ticket.severidad.nombre }}
+  </span>
+
+  <span
+    v-if="ticket.categorias_servicio"
+    class="text-xs px-2 py-1 rounded bg-emerald-600"
+  >
+   Categoria: {{ ticket.categorias_servicio.nombre }}
+  </span>
+
+  <span
+    v-if="ticket.subcategorias"
+    class="text-xs px-2 py-1 rounded bg-black/40"
+  >
+  Subcategoría:  {{ ticket.subcategorias.nombre }}
+  </span>
+</div>
+
 
     <div class="text-right">
       <span class="px-4 py-2 bg-white/10 rounded-xl text-white">{{
