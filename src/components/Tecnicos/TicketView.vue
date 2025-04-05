@@ -1,0 +1,123 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { supabase } from "../../supabase.js";
+import Comentarios  from "../../components/Tecnicos/CometariosView.vue";
+const route = useRoute();
+const ticketId = route.params.id;
+const ticket = ref(null);
+const respuesta = ref('')
+
+const usuario = JSON.parse(localStorage.getItem("usuario"))
+
+const fetchTicket = async () => {
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("*")
+    .eq("id", ticketId)
+    .single();
+
+  if (!error) ticket.value = data;
+  else console.error("Error al obtener el ticket:", error);
+};
+
+onMounted(fetchTicket);
+
+const enviarRespuesta = async () => {
+  if (!respuesta.value.trim()) return alert("Escribe una respuesta");
+
+  const { error } = await supabase.from("comentarios_ticket").insert([
+    {
+      ticket_id: ticketId,
+      usuario_id: usuario.id,
+      contenido: respuesta.value,
+      fecha_creacion: new Date().toISOString(),
+      tipo: "respuesta", // <- asegúrate que este valor sea válido en tu enum
+    },
+  ]);
+
+  if (error) {
+    console.error("Error al guardar respuesta:", error);
+    alert("Hubo un error al guardar la respuesta");
+  } else {
+    respuesta.value = "";
+    alert("Respuesta registrada correctamente");
+    // puedes recargar comentarios aquí si lo deseas
+  }
+};
+</script>
+
+<template>
+  <div
+    v-if="ticket"
+    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-screen to-blue-500 shadow-xl"
+  >
+    <router-link to="/tecnicos/home" class="text-sm text-white hover:underline">
+      ← Volver
+    </router-link>
+    <h1 class="text-2xl font-bold">Ticket #{{ ticket.id }}</h1>
+
+    <div class="flex items-center space-x-2">
+      <span class="text-xl font-semibold">{{ ticket.titulo }}</span>
+      <span class="text-xs px-2 py-1 rounded bg-red-600">Crítico</span>
+      <span class="text-xs px-2 py-1 rounded bg-emerald-600">{{
+        ticket.categoria
+      }}</span>
+      <span class="text-xs px-2 py-1 rounded bg-black/40"
+        >Procesamiento de tarjetas</span
+      >
+    </div>
+
+    <div class="text-right">
+      <span class="px-4 py-2 bg-white/10 rounded-xl text-white">{{
+        ticket.estado.replace("_", " ")
+      }}</span>
+    </div>
+
+    <div class="mt-4">
+      <h3 class="font-semibold text-white mb-1">Descripción del problema</h3>
+      <p class="bg-white/10 p-4 rounded-md">{{ ticket.descripcion }}</p>
+    </div>
+
+    <div class="mt-6">
+      <p class="text-sm text-white/80">
+        Tiempo en este ticket: <strong>45 minutos</strong>
+      </p>
+    </div>
+
+    <div class="mt-4 space-y-4">
+      <h3 class="font-semibold">Respuesta al Cliente</h3>
+      <textarea
+        v-model="respuesta"
+        placeholder="Escribe tu respuesta al cliente..."
+        class="w-full p-2 rounded-md bg-white/20 text-white"
+      ></textarea>
+
+      <div class="flex gap-2">
+        <button class="bg-white/20 px-3 py-1 rounded-md">Adjuntar</button>
+        <button class="bg-white/20 px-3 py-1 rounded-md">
+          Insertar Enlace
+        </button>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <button
+          @click="enviarRespuesta"
+          class="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-md"
+        >
+          Enviar Respuesta
+        </button>
+
+        <button class="bg-blue-600 text-white px-3 py-1 rounded-md">
+          Escalar
+        </button>
+      </div>
+    </div>
+    <Comentarios :ticket-id="ticket.id" />
+  </div>
+</template>
+
+<style scoped>
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+</style>

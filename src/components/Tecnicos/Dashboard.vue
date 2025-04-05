@@ -6,8 +6,12 @@ import Rendimiento from './Rendimiento.vue'
 
 <template>
     <NavBar/>
-    <div class="p-16 bg-blue-300 h-screen">
-      <TicketsAsignados/>  
-      <Rendimiento/>
+    <div class="p-16 bg-blue-300 h-screen ">
+      <div class="w-[34%] h-full space-y-5 flex flex-col">
+        <TicketsAsignados/> 
+        <Rendimiento/>
+      </div>
+      
+     
     </div>
 </template>

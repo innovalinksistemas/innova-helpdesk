@@ -1,33 +1,92 @@
 <script setup>
+import { ref, onMounted, computed } from "vue";
+import { supabase } from "../../supabase.js";
+import { useRouter } from "vue-router";
 
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+const tickets = ref([]);
+const filtro = ref("Todos");
+const router = useRouter();
+
+const estados = ["Todos", "pendiente", "en_proceso", "resuelto", "cerrado"];
+
+const etiquetas = {
+  pendiente: "Pendiente",
+  en_proceso: "En Proceso",
+  resuelto: "Resuelto",
+  cerrado: "Cerrado",
+};
+
+const fetchTickets = async () => {
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("*, severidad(nombre, color)")
+    .eq("tecnico_id", usuario.id);
+
+  if (!error) tickets.value = data;
+  else console.error("Error al obtener tickets:", error);
+};
+
+onMounted(fetchTickets);
+
+const ticketsFiltrados = computed(() => {
+  if (filtro.value === "Todos") return tickets.value;
+  return tickets.value.filter((ticket) => ticket.estado === filtro.value);
+});
 </script>
 
 <template>
-    <div class="bg-gray-100 w-96 p-8 rounded-2xl min-h-[75%] ">
-        <p class="pb-4">Tickets Asignados</p>
-        <nav class="bg-gray-200 p-0.5 rounded-xl">
-            <ul class="flex flex-row space-x-4">
-                <li>Todos</li>
-                <li>Nuevos</li>
-                <li>En Progreso</li>
-                <li>Esperando</li>
-            </ul>
-        </nav>
-        <div class="grid pt-4 overflow-y-auto">
-            <div class="bg-gray-200 w-full p-2 rounded-xl">
-                <div class="flex space-x-4 p-1">
-                    <p>No puedo acceder a mi cuenta</p>
-                    <p class="bg-red-500 text-white pl-2 pr-2 rounded-xl">Alta</p>
-                </div>
-                <p class="p-1">Nombre Apellido</p>
-                <div class="flex space-x-4 p-1">
-                    <p class="bg-white text-black pl-2 pr-2 rounded-xl">Nuevo</p>
-                    <p>15 min</p>
-                </div>
-            </div>
-            
-            
+  <nav class="bg-gray-200 p-1 rounded-xl w-full max-w-md mb-4">
+    <ul class="flex flex-wrap justify-around gap-2 text-sm font-medium">
+      <li
+        v-for="estado in estados"
+        :key="estado"
+        @click="filtro = estado"
+        :class="[
+          'cursor-pointer px-3 py-1 rounded-xl',
+          filtro === estado ? 'bg-white text-black' : 'text-gray-700',
+        ]"
+      >
+        {{ estado === "Todos" ? "Todos" : etiquetas[estado] }}
+      </li>
+    </ul>
+  </nav>
 
-        </div>
+  <div class="grid gap-4">
+    <div
+      v-for="ticket in ticketsFiltrados"
+      :key="ticket.id"
+      @click="router.push(`/tecnicos/tickets/${ticket.id}`)"
+      class="bg-gray-200 p-3 rounded-xl shadow cursor-pointer hover:bg-gray-300 transition"
+    >
+      <div class="flex justify-between items-center">
+        <p class="font-semibold">{{ ticket.titulo }}</p>
+        <span
+          class="px-2 py-1 rounded-xl text-xs text-white"
+          :class="{
+            'bg-red-500': ticket.prioridad === 'alta',
+            'bg-yellow-500': ticket.prioridad === 'media',
+            'bg-green-500': ticket.prioridad === 'baja',
+          }"
+        >
+          {{ ticket.prioridad }}
+        </span>
+      </div>
+      <p class="text-sm mt-1 text-gray-800">{{ ticket.descripcion }}</p>
+      <div class="flex justify-between items-center mt-2 text-sm">
+        <span class="bg-white px-2 py-1 rounded-xl">
+          {{ etiquetas[ticket.estado] }}
+        </span>
+        <span>{{ new Date(ticket.fecha_creacion).toLocaleString() }}</span>
+      </div>
+      <div v-if="ticket.severidad" class="mt-2">
+        <span
+          class="text-xs px-2 py-1 rounded-md text-white"
+          :style="{ backgroundColor: ticket.severidad.color }"
+        >
+          {{ ticket.severidad.nombre }}
+        </span>
+      </div>
     </div>
+  </div>
 </template>

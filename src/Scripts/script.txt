@@ -1,0 +1,36 @@
+
+import bcrypt from 'bcryptjs'
+import { createClient } from '@supabase/supabase-js'
+const supabaseUrl = 'https://njoohhmixpgfjrvwdezl.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qb29oaG1peHBnZmpydndkZXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxOTQxMjQsImV4cCI6MjA1ODc3MDEyNH0.rJNECGT29ptsVNYhrcronPpnC5NAKxoyhTpRS0qenaA'
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+const encriptarTodasLasContrasenas = async () => {
+  const { data: empresas, error } = await supabase
+    .from('empresas')
+    .select('id, password')
+
+  if (error) {
+    console.error('Error al obtener las empresas:', error)
+    return
+  }
+
+  for (const empresa of empresas) {
+    const hashedPassword = await bcrypt.hash(empresa.password, 10)
+
+    const { error: updateError } = await supabase
+      .from('empresas')
+      .update({ password: hashedPassword })
+      .eq('id', empresa.id)
+
+    if (updateError) {
+      console.error(`Error al actualizar empresa ID ${empresa.id}:`, updateError)
+    } else {
+      console.log(`Contraseña actualizada para empresa ID ${empresa.id}`)
+    }
+  }
+
+  console.log('¡Todas las contraseñas fueron encriptadas!')
+}
+
+encriptarTodasLasContrasenas()
