@@ -108,8 +108,16 @@ const handleLogin = async () => {
     return
   }
 
+  
   localStorage.setItem('usuario', JSON.stringify(tecnico))
+
+if (tecnico.rol === 'admin') {
+  router.push('/admin/dashboard')
+} else {
   router.push('/tecnicos/home')
+}
+
+
 }
 
 }

@@ -3,6 +3,8 @@ import Login from '../components/Login.vue'
 import UserHome from '../components/Usuarios/UserHome.vue'
 import TecnicoHome from '../components/Tecnicos/Dashboard.vue'
 import TicketDetalleView from '../components/Tecnicos/TicketView.vue'
+import AdminDashboard from '../components/Tecnicos/Admin/AdminDashboard.vue' // ✅ NUEVO
+
 const routes = [
   { path: '/', name: 'Login', component: Login },
   { 
@@ -21,6 +23,12 @@ const routes = [
     path: '/tecnicos/tickets/:id',
     name: 'TicketDetalle',
     component: TicketDetalleView
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, role: 'admin' } // ✅ Protección de ruta
   }
   
 ]
