@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { supabase } from "../../supabase.js";
-import Comentarios from "../../components/Tecnicos/CometariosView.vue";
+import Comentarios from "../Usuarios/ComentariosView.vue";
 
 const route = useRoute();
 const ticketId = route.params.id;
@@ -92,7 +92,7 @@ const enviarRespuesta = async () => {
 <template>
   <div
     v-if="ticket"
-    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-screen to-blue-500 shadow-xl"
+    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-auto to-blue-500 shadow-xl"
   >
     <router-link to="/tecnicos/home" class="text-sm text-white hover:underline">
       ← Volver

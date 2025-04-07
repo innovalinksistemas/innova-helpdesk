@@ -15,7 +15,7 @@ const isUsuario = computed(() => usuario?.rol === 'usuario');
 
 <template>
   <div>
-    <nav class="bg-transparent text-white p-2 relative">
+    <nav class="bg-blue-500 text-white p-2 relative">
       <div class="flex justify-between items-center">
         <div class="flex items-center space-x-0.5">
           <p class="font-bold">Soporte Innovalink</p>

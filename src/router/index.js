@@ -4,6 +4,8 @@ import UserHome from '../components/Usuarios/UserHome.vue'
 import TecnicoHome from '../components/Tecnicos/Dashboard.vue'
 import TicketDetalleView from '../components/Tecnicos/TicketView.vue'
 import AdminDashboard from '../components/Tecnicos/Admin/AdminDashboard.vue' // ✅ NUEVO
+import UserDashboard from '../components/Usuarios/UserDashboard.vue'
+import UserTicketDetalle from '../components/Usuarios/TicketUserView.vue'
 
 const routes = [
   { path: '/', name: 'Login', component: Login },
@@ -29,7 +31,22 @@ const routes = [
     name: 'AdminDashboard',
     component: AdminDashboard,
     meta: { requiresAuth: true, role: 'admin' } // ✅ Protección de ruta
+  },
+  {
+    path: '/usuarios/dashboard',
+    name: 'UserDashboard',
+    component: UserDashboard,
+    meta: { requiresAuth: true, role: 'usuario' }
+  },
+  {
+    path: '/usuarios/tickets/:id',
+    name: 'UserTicketDetalle',
+    component: UserTicketDetalle,
+    meta: { requiresAuth: true, role: 'usuario' }
   }
+  
+  
+  
   
 ]
 

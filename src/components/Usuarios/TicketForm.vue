@@ -46,16 +46,43 @@ const handleSubmit = async () => {
   if (error) {
     console.error(error);
     alert("Hubo un error al crear el ticket.");
-  } else {
-    alert("¡Ticket creado correctamente!");
-    asunto.value = "";
-    servicio.value = "";
-    prioridad.value = "";
-    severidad.value = "";
-    subcategoria.value = "";
-    descripcion.value = "";
+    return;
   }
+
+  // ✅ Enviar correo después de crear el ticket
+  try {
+    
+    await fetch("http://localhost:8000/api/notificar-ticket", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    to: usuario.contact_email, // asegúrate que esto existe
+    subject: `Ticket recibido: ${asunto.value}`,
+    ticketInfo: {
+      titulo: asunto.value,
+      prioridad: prioridad.value,
+      estado: "pendiente",
+
+      descripcion: descripcion.value,
+    },
+  }),
+});
+
+  } catch (e) {
+    console.warn("No se pudo enviar el correo:", e);
+  }
+
+  alert("¡Ticket creado correctamente!");
+
+  // Limpiar campos
+  asunto.value = "";
+  servicio.value = "";
+  prioridad.value = "";
+  severidad.value = "";
+  subcategoria.value = "";
+  descripcion.value = "";
 };
+
 </script>
 
 <template>
