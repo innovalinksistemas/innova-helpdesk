@@ -6,7 +6,7 @@ import TicketDetalleView from '../components/Tecnicos/TicketView.vue'
 import AdminDashboard from '../components/Tecnicos/Admin/AdminDashboard.vue' // ✅ NUEVO
 import UserDashboard from '../components/Usuarios/UserDashboard.vue'
 import UserTicketDetalle from '../components/Usuarios/TicketUserView.vue'
-
+import EquipmentDashboard from '../components/Tecnicos/Equipment/EquipmentDashboard.vue'
 const routes = [
   { path: '/', name: 'Login', component: Login },
   { 
@@ -43,11 +43,14 @@ const routes = [
     name: 'UserTicketDetalle',
     component: UserTicketDetalle,
     meta: { requiresAuth: true, role: 'usuario' }
-  }
-  
-  
-  
-  
+  },
+  {
+    path: '/admin/EquipmentDashboard',
+    name: 'EquipmentDashboard',
+    component: EquipmentDashboard,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+
 ]
 
 const router = createRouter({
