@@ -156,6 +156,7 @@ function formatearFecha(fecha) {
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Empresa</th>
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Estado</th>
               <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Compra</th>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Acciones</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
@@ -187,6 +188,24 @@ function formatearFecha(fecha) {
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                 {{ formatearFecha(equipo.fecha_compra) }}
               </td>
+              <td class="px-6 py-4 whitespace-nowrap flex gap-2">
+                <!-- Botón editar -->
+                <button
+                    @click="abrirModalEditar(equipo)"
+                    class="text-blue-600 hover:underline text-sm"
+                >
+                    Editar
+                </button>
+
+                <!-- Botón eliminar -->
+                <button
+                    @click="eliminarEquipo(equipo.id)"
+                    class="text-red-600 hover:underline text-sm"
+                >
+                    Eliminar
+                </button>
+                </td>
+
             </tr>
           </tbody>
         </table>
