@@ -41,7 +41,7 @@ const ticketsFiltrados = computed(() => {
 
 <template>
   <nav class="bg-gray-200 p-1 rounded-xl w-full max-w-md mb-4">
-    <ul class="flex flex-wrap justify-around gap-2 text-sm font-medium">
+    <ul class="flex flex-wrap justify-around gap-1 text-sm font-medium">
       <li
         v-for="estado in estados"
         :key="estado"
@@ -56,7 +56,9 @@ const ticketsFiltrados = computed(() => {
     </ul>
   </nav>
 
-  <div class="grid gap-4">
+
+  <div class="bg-gray-100 p-4 rounded-xl shadow overflow-auto">
+    <div class="grid gap-4 h-auto">
     <div
       v-for="ticket in ticketsFiltrados"
       :key="ticket.id"
@@ -92,5 +94,6 @@ const ticketsFiltrados = computed(() => {
         </span>
       </div>
     </div>
+  </div>
   </div>
 </template>

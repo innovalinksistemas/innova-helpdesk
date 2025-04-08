@@ -26,9 +26,9 @@ defineProps({
 </script>
 
 <template>
-  <div class="mt-6">
+  <div>
     <h3 class="font-semibold text-white mb-2">Historial de Comentarios</h3>
-
+    <div class="mt-6 overflow-auto h-96">
     <div
       v-for="comentario in comentarios"
       :key="comentario.id"
@@ -50,6 +50,8 @@ defineProps({
       </div>
     </div>
   </div>
+  </div>
+
 </template>
 
 <style scoped>

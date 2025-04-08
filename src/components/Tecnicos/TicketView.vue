@@ -9,6 +9,7 @@ const ticketId = route.params.id;
 const ticket = ref(null);
 const respuesta = ref("");
 const usuario = JSON.parse(localStorage.getItem("usuario"));
+const nuevoEstado = ref("");
 
 const fetchTicket = async () => {
   const { data, error } = await supabase
@@ -87,12 +88,28 @@ const enviarRespuesta = async () => {
   alert("Respuesta registrada y correo enviado correctamente");
   fetchTicket();
 };
+const actualizarEstadoManual = async () => {
+  if (!nuevoEstado.value) return;
+
+  const { error } = await supabase
+    .from("tickets")
+    .update({ estado: nuevoEstado.value })
+    .eq("id", ticketId);
+
+  if (error) {
+    console.error("Error al actualizar estado manual:", error);
+    alert("No se pudo actualizar el estado.");
+  } else {
+    alert(`Estado actualizado a "${nuevoEstado.value}" correctamente.`);
+    fetchTicket(); // Recargar datos actualizados
+  }
+};
 </script>
 
 <template>
   <div
     v-if="ticket"
-    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-screen to-blue-500 shadow-xl"
+    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-auto to-blue-500 shadow-xl"
   >
     <router-link to="/tecnicos/home" class="text-sm text-white hover:underline">
       ← Volver
@@ -132,6 +149,22 @@ const enviarRespuesta = async () => {
       <span class="px-4 py-2 bg-white/10 rounded-xl text-white">
         {{ ticket.estado.replace("_", " ") }}
       </span>
+      <!-- Cambiar Estado -->
+      <div class="mt-2 text-right">
+        <label for="estado" class="text-sm mr-2">Cambiar Estado:</label>
+        <select
+          id="estado"
+          v-model="nuevoEstado"
+          @change="actualizarEstadoManual"
+          class="bg-white/20 text-white p-1 rounded"
+        >
+          <option disabled value="">Seleccionar estado</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="en_proceso">En Proceso</option>
+          <option value="resuelto">Resuelto</option>
+          <option value="cerrado">Cerrado</option>
+        </select>
+      </div>
     </div>
 
     <div class="mt-4">
