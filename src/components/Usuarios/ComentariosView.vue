@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineExpose } from 'vue'
 import { supabase } from '../../supabase.js'
 import { useRoute } from 'vue-router'
 
@@ -19,6 +19,7 @@ const fetchComentarios = async () => {
 }
 
 onMounted(fetchComentarios)
+defineExpose({ fetchComentarios });
 defineProps({
   ticketId: String
 })

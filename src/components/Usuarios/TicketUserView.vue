@@ -9,6 +9,7 @@ const ticketId = route.params.id;
 const ticket = ref(null);
 const respuesta = ref("");
 const usuario = JSON.parse(localStorage.getItem("usuario"));
+const comentariosRef = ref(null);
 
 const fetchTicket = async () => {
   const { data, error } = await supabase
@@ -34,13 +35,15 @@ const enviarRespuesta = async () => {
     .insert([
       {
         ticket_id: ticketId,
-        usuario_id: usuario.id,
+        empresa_id: usuario.id,
         contenido: respuesta.value,
         fecha_creacion: new Date().toISOString(),
         tipo: "respuesta",
       },
     ]);
-
+    if (comentariosRef.value) {
+    comentariosRef.value.fetchComentarios(); // 🔁 Recarga sin refrescar la página
+  }
   if (comentarioError) {
     console.error("Error al guardar respuesta:", comentarioError);
     return alert("Hubo un error al guardar la respuesta");
@@ -174,7 +177,7 @@ const enviarRespuesta = async () => {
       </div>
     </div>
 
-    <Comentarios :ticket-id="ticket.id" />
+    <Comentarios ref="comentariosRef" :ticket-id="ticket.id" />
   </div>
 </template>
 

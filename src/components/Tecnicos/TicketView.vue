@@ -10,6 +10,7 @@ const ticket = ref(null);
 const respuesta = ref("");
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 const nuevoEstado = ref("");
+const comentariosRef = ref(null);
 
 const fetchTicket = async () => {
   const { data, error } = await supabase
@@ -41,11 +42,14 @@ const enviarRespuesta = async () => {
         tipo: "respuesta",
       },
     ]);
-
+    if (comentariosRef.value) {
+    comentariosRef.value.fetchComentarios(); // 🔁 Recarga sin refrescar la página
+  }
   if (comentarioError) {
     console.error("Error al guardar respuesta:", comentarioError);
     return alert("Hubo un error al guardar la respuesta");
   }
+
 
   // 2. Cambiar estado del ticket
   const { error: estadoError } = await supabase
@@ -207,7 +211,7 @@ const actualizarEstadoManual = async () => {
       </div>
     </div>
 
-    <Comentarios :ticket-id="ticket.id" />
+    <Comentarios ref="comentariosRef" :ticket-id="ticket.id" />
   </div>
 </template>
 

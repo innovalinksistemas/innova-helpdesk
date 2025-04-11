@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineExpose } from 'vue'
 import { supabase } from '../../supabase.js'
 import { useRoute } from 'vue-router'
 
@@ -10,15 +10,21 @@ const comentarios = ref([])
 const fetchComentarios = async () => {
   const { data, error } = await supabase
     .from('comentarios_ticket')
-    .select('*, usuario(full_name)')
+    .select(`
+      *,
+      usuario(full_name),
+      empresa:empresas(name)
+    `)
     .eq('ticket_id', ticketId)
-    .order('fecha_creacion', { ascending: true })
+    .order('fecha_creacion', { ascending: true });
 
-  if (!error) comentarios.value = data
-  else console.error('Error al obtener comentarios:', error)
-}
+  if (!error) comentarios.value = data;
+  else console.error('Error al obtener comentarios:', error);
+};
+
 
 onMounted(fetchComentarios)
+defineExpose({ fetchComentarios });
 defineProps({
   ticketId: String
 })
@@ -36,8 +42,10 @@ defineProps({
     >
       <div class="flex justify-between items-center mb-1">
         <span class="font-semibold text-sm">
-          {{ comentario.usuarios?.full_name || 'Usuario' }}
-        </span>
+  {{ comentario.usuario?.full_name || comentario.empresa?.name || 'Usuario' }}
+</span>
+
+
         <span class="text-xs opacity-80">
           {{ new Date(comentario.fecha_creacion).toLocaleString() }}
         </span>
