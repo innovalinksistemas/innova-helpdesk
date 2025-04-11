@@ -37,7 +37,7 @@ const ticketsFiltrados = computed(() => {
 </script>
 
 <template>
-  <nav class="bg-gray-200 p-1 rounded-xl w-full max-w-xl mb-4 ">
+  <nav class="bg-gray-200 p-1 rounded-xl  mb-4 ">
     <ul class="flex flex-wrap justify-around gap-1 text-sm font-medium">
       <li
         v-for="estado in estados"

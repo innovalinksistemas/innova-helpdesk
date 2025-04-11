@@ -1,5 +1,5 @@
 <script setup>
-import NavBar from './Navbar.vue'
+import NavBar from '../Tecnicos/Admin/NavbarAdmin.vue'
 import TicketsAsignados from './TicketsAsignados.vue'
 import Rendimiento from './Rendimiento.vue'
 </script>
