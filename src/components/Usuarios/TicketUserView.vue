@@ -97,7 +97,7 @@ const enviarRespuesta = async () => {
     v-if="ticket"
     class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-auto to-blue-500 shadow-xl"
   >
-    <router-link to="/tecnicos/home" class="text-sm text-white hover:underline">
+    <router-link to="/usuarios/dashboard" class="text-sm text-white hover:underline">
       ← Volver
     </router-link>
     <h1 class="text-2xl font-bold">Ticket #{{ ticket.id }}</h1>

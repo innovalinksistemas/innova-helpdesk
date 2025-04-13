@@ -10,13 +10,18 @@ const comentarios = ref([])
 const fetchComentarios = async () => {
   const { data, error } = await supabase
     .from('comentarios_ticket')
-    .select('*, usuario(full_name)')
+    .select(`
+      *,
+      usuario(full_name),
+      empresa:empresas(name)
+    `)
     .eq('ticket_id', ticketId)
-    .order('fecha_creacion', { ascending: true })
+    .order('fecha_creacion', { ascending: true });
 
-  if (!error) comentarios.value = data
-  else console.error('Error al obtener comentarios:', error)
-}
+  if (!error) comentarios.value = data;
+  else console.error('Error al obtener comentarios:', error);
+};
+
 
 onMounted(fetchComentarios)
 defineExpose({ fetchComentarios });
@@ -30,7 +35,6 @@ defineProps({
   <div>
     <h3 class="font-semibold text-white mb-2">Historial de Comentarios</h3>
     <div class="mt-6 overflow-auto h-96">
-
     <div
       v-for="comentario in comentarios"
       :key="comentario.id"
@@ -38,8 +42,10 @@ defineProps({
     >
       <div class="flex justify-between items-center mb-1">
         <span class="font-semibold text-sm">
-          {{ comentario.usuarios?.full_name || 'Usuario' }}
-        </span>
+  {{ comentario.usuario?.full_name || comentario.empresa?.name || 'Usuario' }}
+</span>
+
+
         <span class="text-xs opacity-80">
           {{ new Date(comentario.fecha_creacion).toLocaleString() }}
         </span>
@@ -53,7 +59,7 @@ defineProps({
     </div>
   </div>
   </div>
- 
+
 </template>
 
 <style scoped>
