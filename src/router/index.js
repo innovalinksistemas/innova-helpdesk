@@ -7,6 +7,9 @@ import AdminDashboard from '../components/Tecnicos/Admin/AdminDashboard.vue' // 
 import UserDashboard from '../components/Usuarios/UserDashboard.vue'
 import UserTicketDetalle from '../components/Usuarios/TicketUserView.vue'
 import EquipmentDashboard from '../components/Tecnicos/Equipment/EquipmentDashboard.vue'
+import AdminClientes from '../components/Tecnicos/Admin/AdminClientes.vue'
+import AsignarTickets from '../components/Tecnicos/Admin/AsignarTicket.vue'
+import AsignarTicketView from '../components/Tecnicos/Admin/AsignarTicketView.vue'
 const routes = [
   { path: '/', name: 'Login', component: Login },
   { 
@@ -50,7 +53,24 @@ const routes = [
     component: EquipmentDashboard,
     meta: { requiresAuth: true, role: 'admin' }
   },
-
+  {
+    path: '/admin/clientes',
+    name: 'AdminClientes',
+    component: AdminClientes,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/asignar',
+    name: 'AsignarTickets',
+    component: AsignarTickets,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/asignarticket/:id',
+    name: 'AsignarTicketView',
+    component: AsignarTicketView,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
 ]
 
 const router = createRouter({

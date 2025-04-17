@@ -28,7 +28,7 @@ const isUsuario = computed(() => usuario?.rol === 'usuario');
 
           </li>
           <li>
-            <router-link to="/usuarios/home">Centro de Ayuda</router-link>
+            <router-link to="/admin/dashboard">Dashboard</router-link>
           </li>
           <li>
             <button @click="handleLogout" class="hover:underline">

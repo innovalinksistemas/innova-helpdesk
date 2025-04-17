@@ -31,12 +31,17 @@ onMounted(fetchTickets);
 
 const ticketsFiltrados = computed(() => {
   if (filtro.value === "Todos") {
-    return tickets.value.filter(ticket => ticket.tecnico_id === null);
+    // Mostrar todos los tickets asignados al técnico
+    return tickets.value.filter(ticket => ticket.tecnico_id === usuario.id);
   }
+
+  // Mostrar solo los tickets asignados al técnico con el estado filtrado
   return tickets.value.filter(
-    (ticket) => ticket.estado === filtro.value && ticket.tecnico_id === usuario.id
+    (ticket) =>
+      ticket.tecnico_id === usuario.id && ticket.estado === filtro.value
   );
 });
+
 </script>
 
 <template>
