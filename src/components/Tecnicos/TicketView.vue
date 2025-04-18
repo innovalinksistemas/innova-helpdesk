@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { supabase } from "../../supabase.js";
 import Comentarios from "../../components/Tecnicos/CometariosView.vue";
+import { computed } from "vue";
 
 const route = useRoute();
 const ticketId = route.params.id;
@@ -42,19 +43,25 @@ const enviarRespuesta = async () => {
         tipo: "respuesta",
       },
     ]);
-    if (comentariosRef.value) {
-    comentariosRef.value.fetchComentarios(); // 🔁 Recarga sin refrescar la página
+
+  if (comentariosRef.value) {
+    comentariosRef.value.fetchComentarios();
   }
+
   if (comentarioError) {
     console.error("Error al guardar respuesta:", comentarioError);
     return alert("Hubo un error al guardar la respuesta");
   }
 
+  // 2. Cambiar estado del ticket y establecer fecha_inicio si no existe
+  const updateData = { estado: "en_proceso" };
+  if (!ticket.value.fecha_inicio) {
+    updateData.fecha_inicio = new Date().toISOString();
+  }
 
-  // 2. Cambiar estado del ticket
   const { error: estadoError } = await supabase
     .from("tickets")
-    .update({ estado: "en_proceso" })
+    .update(updateData)
     .eq("id", ticketId);
 
   if (estadoError) {
@@ -92,12 +99,11 @@ const enviarRespuesta = async () => {
   alert("Respuesta registrada y correo enviado correctamente");
   fetchTicket();
 };
+
 const actualizarEstadoManual = async () => {
   if (!nuevoEstado.value) return;
 
-  const updateData = {
-    estado: nuevoEstado.value,
-  };
+  const updateData = { estado: nuevoEstado.value };
 
   if (nuevoEstado.value === "resuelto") {
     updateData.fecha_resolucion = new Date().toISOString();
@@ -113,10 +119,23 @@ const actualizarEstadoManual = async () => {
     alert("No se pudo actualizar el estado.");
   } else {
     alert(`Estado actualizado a "${nuevoEstado.value}" correctamente.`);
-    fetchTicket(); // Recargar datos actualizados
+    fetchTicket();
   }
 };
 
+// Computar el tiempo total trabajado
+const tiempoTotal = computed(() => {
+  if (!ticket.value?.fecha_inicio || !ticket.value?.fecha_resolucion) return "N/A";
+
+  const inicio = new Date(ticket.value.fecha_inicio);
+  const fin = new Date(ticket.value.fecha_resolucion);
+  const diffMs = fin - inicio;
+
+  const horas = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  return `${horas}h ${minutos}m`;
+});
 
 </script>
 
@@ -188,7 +207,7 @@ const actualizarEstadoManual = async () => {
 
     <div class="mt-6">
       <p class="text-sm text-white/80">
-        Tiempo en este ticket: <strong>45 minutos</strong>
+        Tiempo total trabajado: <strong>{{ tiempoTotal }}</strong>
       </p>
     </div>
 
