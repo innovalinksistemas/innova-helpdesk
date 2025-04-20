@@ -12,6 +12,8 @@ const router = useRouter();
 
 const estados = ["Todos", "pendiente", "en_proceso", "resuelto", "cerrado"];
 
+
+
 const etiquetas = {
   pendiente: "Pendiente",
   en_proceso: "En Proceso",
@@ -57,6 +59,9 @@ const ticketsFiltrados = computed(() => {
     return porTecnico && porEstado;
   });
 });
+
+
+
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup>
-
+import Notificaciones from './CampanaNotificaciones.vue';
 </script>
 
 <template>

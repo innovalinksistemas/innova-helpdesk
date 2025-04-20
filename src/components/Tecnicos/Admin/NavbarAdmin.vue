@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { computed } from "vue";
+import Notificaciones from "../CampanaNotificaciones.vue";
 
 const router = useRouter();
 const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -26,6 +27,9 @@ const isUsuario = computed(() => usuario?.rol === 'usuario');
           <li v-if="isUsuario">
             <router-link to="/usuarios/dashboard" class="hover:underline">Dashboard</router-link>
 
+          </li>
+          <li>
+            <Notificaciones/>
           </li>
           <li>
             <router-link to="/admin/dashboard">Dashboard</router-link>

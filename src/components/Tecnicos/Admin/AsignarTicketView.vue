@@ -62,6 +62,7 @@ const asignarTecnico = async () => {
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     tecnicoId: tecnicoSeleccionado.value,
+    ticketId: ticket.value.id,
     ticketTitulo: ticket.value.titulo,
     prioridad: ticket.value.prioridad,
     estado: ticket.value.estado,
