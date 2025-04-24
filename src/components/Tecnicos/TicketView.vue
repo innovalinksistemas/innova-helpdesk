@@ -12,12 +12,14 @@ const respuesta = ref("");
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 const nuevoEstado = ref("");
 const comentariosRef = ref(null);
+const mostrarModal = ref(false);
+const justificacionPausa = ref("");
 
 const fetchTicket = async () => {
   const { data, error } = await supabase
     .from("tickets")
     .select(
-      `*, categorias_servicio(nombre), subcategorias(nombre), severidad(nombre, color)`
+      `*, categorias_servicio(nombre), severidad(nombre, color), areas(nombre)`
     )
     .eq("id", ticketId)
     .single();
@@ -125,7 +127,8 @@ const actualizarEstadoManual = async () => {
 
 // Computar el tiempo total trabajado
 const tiempoTotal = computed(() => {
-  if (!ticket.value?.fecha_inicio || !ticket.value?.fecha_resolucion) return "N/A";
+  if (!ticket.value?.fecha_inicio || !ticket.value?.fecha_resolucion)
+    return "N/A";
 
   const inicio = new Date(ticket.value.fecha_inicio);
   const fin = new Date(ticket.value.fecha_resolucion);
@@ -136,13 +139,36 @@ const tiempoTotal = computed(() => {
 
   return `${horas}h ${minutos}m`;
 });
+const pausarTicket = async () => {
+  if (!justificacionPausa.value.trim()) {
+    alert("Debes ingresar una justificación para pausar el ticket.");
+    return;
+  }
 
+  const { error } = await supabase
+    .from("tickets")
+    .update({
+      estado: "pausado",
+      justificacion_pausa: justificacionPausa.value,
+    })
+    .eq("id", ticketId);
+
+  if (error) {
+    console.error("Error al pausar el ticket:", error);
+    alert("No se pudo pausar el ticket.");
+  } else {
+    alert("Ticket pausado correctamente.");
+    mostrarModal.value = false;
+    justificacionPausa.value = "";
+    fetchTicket(); // Refrescar datos del ticket
+  }
+};
 </script>
 
 <template>
   <div
     v-if="ticket"
-    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-auto to-blue-500 shadow-xl"
+    class="p-6 space-y-4 text-white bg-gradient-to-br from-cyan-500 h-screen to-blue-500 shadow-xl"
   >
     <router-link to="/tecnicos/home" class="text-sm text-white hover:underline">
       ← Volver
@@ -170,11 +196,8 @@ const tiempoTotal = computed(() => {
       >
         Categoria: {{ ticket.categorias_servicio.nombre }}
       </span>
-      <span
-        v-if="ticket.subcategorias"
-        class="text-xs px-2 py-1 rounded bg-black/40"
-      >
-        Subcategoría: {{ ticket.subcategorias.nombre }}
+      <span v-if="ticket.areas" class="text-xs px-2 py-1 rounded bg-purple-600">
+        Área: {{ ticket.areas.nombre }}
       </span>
     </div>
 
@@ -237,10 +260,46 @@ const tiempoTotal = computed(() => {
         <button class="bg-blue-600 text-white px-3 py-1 rounded-md">
           Escalar
         </button>
+        <button
+          @click="mostrarModal = true"
+          class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded-md"
+        >
+          Pausar Tiempo
+        </button>
       </div>
     </div>
 
     <Comentarios ref="comentariosRef" :ticket-id="ticket.id" />
+  </div>
+
+  <div
+    v-if="mostrarModal"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white text-black p-6 rounded-lg shadow-lg w-[90%] max-w-md">
+      <h2 class="text-lg font-semibold mb-2">Justificación de Pausa</h2>
+      <textarea
+        v-model="justificacionPausa"
+        placeholder="Explica por qué pausas este ticket..."
+        class="w-full p-2 border rounded"
+        rows="4"
+      ></textarea>
+
+      <div class="mt-4 flex justify-end gap-2">
+        <button
+          @click="mostrarModal = false"
+          class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Cancelar
+        </button>
+        <button
+          @click="pausarTicket"
+          class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Confirmar Pausa
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 

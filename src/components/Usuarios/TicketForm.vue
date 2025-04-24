@@ -5,38 +5,46 @@ import { supabase } from "../../supabase.js";
 const asunto = ref("");
 const servicio = ref("");
 const prioridad = ref("");
-const severidad = ref("");
-const subcategoria = ref("");
 const descripcion = ref("");
+const area = ref("");
 
 const categorias = ref([]);
-const subcategorias = ref([]);
-const severidades = ref([]);
+const areas = ref([]);
 
 onMounted(async () => {
-  const [{ data: cats }, { data: subs }, { data: sevs }] = await Promise.all([
+  const [{ data: cats }, { data: ares }] = await Promise.all([
     supabase.from("categorias_servicio").select("*"),
-    supabase.from("subcategorias").select("*"),
-    supabase.from("severidades").select("*")
-  ])
+    supabase.from("areas").select("*"),
+  ]);
 
-  categorias.value = cats || []
-  subcategorias.value = subs || []
-  severidades.value = sevs || []
-})
+  categorias.value = cats || [];
+  areas.value = ares || [];
+});
 
 const handleSubmit = async () => {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   if (!usuario) return alert("Sesión no encontrada.");
+
+  // Validación
+  if (
+    !asunto.value ||
+    !servicio.value ||
+    !prioridad.value ||
+    !descripcion.value ||
+    !area.value
+  ) {
+    alert("Por favor completa todos los campos antes de enviar.");
+    return;
+  }
 
   const { data, error } = await supabase.from("tickets").insert([
     {
       titulo: asunto.value,
       descripcion: descripcion.value,
       categoria: servicio.value,
-      subcategoria: subcategoria.value,
+      area: area.value,
       prioridad: prioridad.value,
-      severidad: severidad.value,
+      severidad: null, // 👈 valor por defecto
       fecha_creacion: new Date().toISOString(),
       empresa_id: usuario.id,
       estado: "pendiente"
@@ -49,25 +57,21 @@ const handleSubmit = async () => {
     return;
   }
 
-  // ✅ Enviar correo después de crear el ticket
   try {
-    
     await fetch("http://localhost:8000/api/notificar-ticket", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    to: usuario.contact_email, // asegúrate que esto existe
-    subject: `Ticket recibido: ${asunto.value}`,
-    ticketInfo: {
-      titulo: asunto.value,
-      prioridad: prioridad.value,
-      estado: "pendiente",
-
-      descripcion: descripcion.value,
-    },
-  }),
-});
-
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: usuario.contact_email,
+        subject: `Ticket recibido: ${asunto.value}`,
+        ticketInfo: {
+          titulo: asunto.value,
+          prioridad: prioridad.value,
+          estado: "pendiente",
+          descripcion: descripcion.value,
+        },
+      }),
+    });
   } catch (e) {
     console.warn("No se pudo enviar el correo:", e);
   }
@@ -78,11 +82,9 @@ const handleSubmit = async () => {
   asunto.value = "";
   servicio.value = "";
   prioridad.value = "";
-  severidad.value = "";
-  subcategoria.value = "";
+  area.value = "";
   descripcion.value = "";
 };
-
 </script>
 
 <template>
@@ -103,41 +105,26 @@ const handleSubmit = async () => {
       </div>
 
       <div class="flex flex-col pt-1.5">
-        <label for="severidad" class="mb-1">Severidad</label>
-        <select
-          v-model="severidad"
-          class="bg-white/20 rounded-md p-2 outline-none focus:ring-2 focus:ring-white/50"
-          id="severidad"
-        >
-          <option v-for="s in severidades" :key="s.id" :value="s.id">{{ s.nombre }}</option>
-        </select>
-      </div>
-
-      <div class="flex flex-col pt-1.5">
         <label for="servicio" class="mb-1">Categoría</label>
         <select
           v-model="servicio"
           class="bg-white/20 rounded-md p-2 outline-none focus:ring-2 focus:ring-white/50"
           id="servicio"
         >
+          <option disabled value="">Seleccione una categoría</option>
           <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
         </select>
       </div>
 
       <div class="flex flex-col pt-1.5">
-        <label for="subcategoria" class="mb-1">Subcategoría</label>
+        <label for="area" class="mb-1">Área</label>
         <select
-          v-model="subcategoria"
+          v-model="area"
           class="bg-white/20 rounded-md p-2 outline-none focus:ring-2 focus:ring-white/50"
-          id="subcategoria"
+          id="area"
         >
-          <option
-            v-for="s in subcategorias.filter(sc => sc.categoria_id === servicio)"
-            :key="s.id"
-            :value="s.id"
-          >
-            {{ s.nombre }}
-          </option>
+          <option disabled value="">Seleccione un área</option>
+          <option v-for="a in areas" :key="a.id" :value="a.id">{{ a.nombre }}</option>
         </select>
       </div>
 
@@ -148,6 +135,7 @@ const handleSubmit = async () => {
           class="bg-white/20 rounded-md p-2 outline-none focus:ring-2 focus:ring-white/50"
           id="prioridad"
         >
+          <option disabled value="">Seleccione una prioridad</option>
           <option value="alta">Alta</option>
           <option value="media">Media</option>
           <option value="baja">Baja</option>
